@@ -12,28 +12,52 @@ Index is most likely 0-based, however due to inaccessibility
 to header column by standard means, it will be viewed as 1-based.
 */
 
-// Constructor
-function Excel(baseName) {
-    if (typeof (baseName) !== 'string' && baseName != null) {
-        throw new TypeError('Expected string, got ' + typeof (baseName));
+function Excel(
+    /** @type {string} */
+    baseName
+) {
+    if (!(typeof baseName === 'string' || baseName == null)) {
+        throw new TypeError('Expected string | null, got ' + typeof baseName);
     }
 
-    // Private constants
+
+    /** 
+     * @private
+     * @type {number}
+    */
     this._MAX_COLUMN_SPAN = 1000;
+    /** 
+     * @private
+     * @type {number}
+    */
     this._START_COLUMN_STEP = 100;
 
+    /** 
+     * @private
+     * @type {number}
+    */
     this._MAX_ROW_SPAN = 60000;
+    /** 
+     * @private
+     * @type {number}
+    */
     this._START_ROW_STEP = 10000;
 
+    /** 
+     * @private
+     * @type {string}
+    */
     this._DEFAULT_BASENAME = 'COLUMN';
 
+    /** 
+     * @private
+     * @type {number}
+    */
     this._SEARCH_DEPTH = 100;
 
 
     // Apply user-specific settings
     baseName = baseName == null ? this._DEFAULT_BASENAME : baseName
-
-   // Constructor
 
     /*
     We are working on under restriction that column name is set in a way
@@ -44,8 +68,16 @@ function Excel(baseName) {
     /*
     In case baseName wouldn't be COLUMN, I gave user opt-in to give custom baseName
     */
+    /** 
+     * @private
+     * @type {string}
+    */
     this._baseName = baseName;
 
+    /** 
+     * @private
+     * @type {number}
+    */
     this._startRowIndex = 1;
 
     /*
@@ -57,6 +89,10 @@ function Excel(baseName) {
     so user could use it in incorrect way - like specify column index that is already out
     of bounds
     */
+    /** 
+     * @private
+     * @type {number}
+    */
     this._startColumnIndex = 1;
 
     // Call initialization methods
@@ -64,54 +100,35 @@ function Excel(baseName) {
     this._getColumnSpan();
 }
 
-// PUBLIC
-/*
-How to call this function:
-mappingHelper.getLastColumnName();
-
-Function retrieves last column name
-*/
+/** @public */
 Excel.prototype.getLastColumnName = function () {
     return this.getColumnName(this._lastColumnIndex);
 }
 
-// PUBLIC
-/*
-How to call this function:
-mappingHelper.getFirstColumnName();
-
-Function retrieves first column name
-*/
+/** @public */
 Excel.prototype.getFirstColumnName = function () {
     return this.getColumnName(this._startColumnIndex);
 }
 
-// PUBLIC
-/*
-How to call this function:
-mappingHelper.findCell(/abc/i, 0, 3);
-
-If you don't specify indexes like this:
-mappingHelper.findCell(/abc/i);
-
-You may also specify string data type like this:
-mappingHelper.findCell('abc', 1, 50);
-
-Function will assume to search 100 rows
-off your current position downwards
-if you don't specify anything.
-*/
-Excel.prototype.findCell = function (search, startRowOffset, stopRowOffset) {
-    if ((search instanceof RegExp === true || typeof (search) === 'string') === false || search == null) {
-        throw new TypeError('Expected Object(RegExp) | string, got ' + typeof (search));
+/** @public */
+Excel.prototype.findCell = function (
+    /** @type {string | RegExp} */
+    search,
+    /** @type {?number} */
+    startRowOffset,
+    /** @type {?number} */
+    stopRowOffset
+) {
+    if (!(search instanceof RegExp || typeof search === 'string')) {
+        throw new TypeError('Expected Object(RegExp) | string, got ' + typeof search);
     }
 
-    if (typeof (startRowOffset) !== 'number' && startRowOffset != null) {
-        throw new TypeError('Expected number, got ' + typeof (startRowOffset));
+    if (!(typeof startRowOffset === 'number' || startRowOffset == null)) {
+        throw new TypeError('Expected number | null, got ' + typeof startRowOffset);
     }
 
-    if (typeof (stopRowOffset) !== 'number' && stopRowOffset != null) {
-        throw new TypeError('Expected number, got ' + typeof (stopRowOffset));
+    if (!(typeof stopRowOffset === 'number' || stopRowOffset == null)) {
+        throw new TypeError('Expected number | null, got ' + typeof stopRowOffset);
     }
 
     // Set default offset
@@ -139,31 +156,39 @@ Excel.prototype.findCell = function (search, startRowOffset, stopRowOffset) {
     throw new Error('Search term was not found');
 }
 
-// PRIVATE
-/*
-How to call this function:
-mappingHelper.columnExists('COLUMN1');
-
-returns Boolean (true/false)
-*/
-/* Just a wrapper around PPress Excel API */
-Excel.prototype._columnExists = function (columnName) {
-    if (typeof (columnName) !== 'string' || columnName == null) {
-        throw new TypeError('Expected string, got ' + typeof (columnName));
+/** @public */
+Excel.prototype.getColumnName = function (
+    /** @type {number} */
+    columnIndex
+) {
+    if (!(typeof columnIndex === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof columnIndex);
     }
-    return data.fieldExists(columnName);
+
+    return this._baseName + columnIndex;
 }
 
-// PRIVATE
-/*
-How to call this function:
-mappingHelper.rowExists(13);
+/** @private */
+Excel.prototype._columnExists = function (
+    /** @type {string} */
+    columnName
+) {
+    if (!(typeof columnName === 'string')) {
+        throw new TypeError('Expected string, got ' + typeof columnName);
+    }
 
-returns Boolean (true/false)
-*/
-Excel.prototype._rowExists = function (rowOffset) {
-    if (typeof (rowOffset) !== 'number' || rowOffset == null) {
-        throw new TypeError('Expected number, got ' + typeof (rowOffset));
+    /** @type {boolean} */
+    let result = data.fieldExists(columnName);
+    return result;
+}
+
+/** @private */
+Excel.prototype._rowExists = function (
+    /** @type {number} */
+    rowOffset
+) {
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
     let columnName = this.getColumnName(this._startColumnIndex)
@@ -181,44 +206,44 @@ Excel.prototype._rowExists = function (rowOffset) {
     }
 }
 
-// PRIVATE
-/*
-How to call this function:
-mappingHelper.getCellValueByOffset('COLUMN1', 0);
-
-Wrapper around data.extract which works with offset (relative position to current position)
-*/
-Excel.prototype._getCellValueByOffset = function (columnName, rowOffset) {
-    if (typeof (columnName) !== 'string' || columnName == null) {
-        throw new TypeError('Expected string, got ' + typeof (columnName));
+/** @private */
+Excel.prototype._getCellValueByOffset = function (
+    /** @type {string} */
+    columnName,
+    /** @type {number} */
+    rowOffset) {
+    if (!(typeof columnName === 'string')) {
+        throw new TypeError('Expected string, got ' + typeof columnName);
     }
 
-    if (typeof (rowOffset) !== 'number' && rowOffset != null) {
-        throw new TypeError('Expected number, got ' + typeof (rowOffset));
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
-    return data.extract(columnName, rowOffset)
+    /** @type {string} */
+    let result = data.extract(columnName, rowOffset);
+    return result;
 }
 
-// PRIVATE
-/*
-    Converts Offset value to Index
-*/
-Excel.prototype._rowOffsetToIndex = function (rowOffset) {
-    if (typeof (rowOffset) !== 'number' && rowOffset != null) {
-        throw new TypeError('Expected number, got ' + typeof (rowOffset));
+/** @private */
+Excel.prototype._rowOffsetToIndex = function (
+    /** @type {number} */
+    rowOffset
+) {
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
     return this._getCurrentRowOffset() + rowOffset
 }
 
-// PRIVATE
-/*
-    Converts Index value to Offset
-*/
-Excel.prototype._rowIndexToOffset = function (rowIndex) {
-    if (typeof (rowIndex) !== 'number' && rowIndex != null) {
-        throw new TypeError('Expected number, got ' + typeof (rowIndex));
+/** @private */
+Excel.prototype._rowIndexToOffset = function (
+    /** @type {number} */
+    rowIndex
+) {
+    if (!(typeof rowIndex === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowIndex);
     }
 
     let currentOffset = this._getCurrentRowOffset();
@@ -230,27 +255,14 @@ Excel.prototype._rowIndexToOffset = function (rowIndex) {
     return rowIndex - currentOffset;
 }
 
-// PRIVATE
-/*
-How to call this function:
-mappingHelper.getCurrentRowOffset();
-*/
+/** @private */
 Excel.prototype._getCurrentRowOffset = function () {
-    return steps.currentPosition;
+    /** @type {number} */
+    let result = steps.currentPosition
+    return result;
 }
 
-// PRIVATE
-Excel.prototype.getColumnName = function(columnIndex) {
-    if (typeof (columnIndex) !== 'number' || columnIndex == null) {
-        throw new TypeError('Expected number, got ' + typeof (columnIndex));
-    }
-
-    return this._baseName + columnIndex;
-}
-// PRIVATE
-/*
-Retrieves indexes of column data and saves them into object instance
-*/
+/** @private */
 Excel.prototype._getColumnSpan = function () {
     /*
     step range to decrease iteration count
@@ -264,7 +276,7 @@ Excel.prototype._getColumnSpan = function () {
     for (let columnIndex = this._startColumnIndex + step; ; columnIndex += step) {
         let columnName = this.getColumnName(columnIndex);
 
-        if (this._columnExists(columnName) === false) {
+        if (!this._columnExists(columnName)) {
             if (step === 1) {
                 this._lastColumnIndex = columnIndex - step;
                 break;
@@ -284,10 +296,7 @@ Excel.prototype._getColumnSpan = function () {
     }
 }
 
-// PRIVATE
-/*
-Retrieves indexes of row data and saves them into object instance
-*/
+/** @private */
 Excel.prototype._getRowSpan = function () {
     /*
     step range to decrease iteration count
@@ -300,7 +309,7 @@ Excel.prototype._getRowSpan = function () {
     */
     for (let rowOffset = this._rowIndexToOffset(this._startRowIndex + step); ; rowOffset += step) {
 
-        if (this._rowExists(rowOffset) === false) {
+        if (!this._rowExists(rowOffset)) {
             if (step === 1) {
                 this._lastRowIndex = this._rowOffsetToIndex(rowOffset - step);
                 break;
@@ -322,30 +331,27 @@ Excel.prototype._getRowSpan = function () {
 
 
 
-// PRIVATE
-/*
-Function reduces number by order of magnitude
-i.e: giving 1000 -> 100 -> 10 -> 1
-
-If after reduction result happens to be less or equal to 1,
-function returns 1
-*/
-Excel.prototype._reduceMagnitude = function (num) {
-    if (typeof (num) !== 'number' || num == null) {
-        throw new TypeError('Expected number, got ' + typeof (num));
+/** @private */
+Excel.prototype._reduceMagnitude = function (
+    /** @type {number} */
+    num
+) {
+    if (!(typeof num === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof num);
     }
 
     num = parseInt(num / 10, 10);
     return num = num < 1 ? 1 : num;
 }
 
-// PRIVATE
-/*
-Helper function for restricting row offset within bounds
-*/
-Excel.prototype._restrictRowOffset = function (rowOffset) {
-    if (typeof (rowOffset) !== 'number' || rowOffset == null) {
-        throw new TypeError('Expected number, got ' + typeof (rowOffset));
+
+/** @private */
+Excel.prototype._restrictRowOffset = function (
+    /** @type {number} */
+    rowOffset
+) {
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
     // Make sure that index is whole number
@@ -357,40 +363,44 @@ Excel.prototype._restrictRowOffset = function (rowOffset) {
     // Restrict lower bound
     rowOffset = rowOffset < startRowOffset ? startRowOffset : rowOffset;
 
-    // REstrict upper bound
+    // Restrict upper bound
     rowOffset = rowOffset > lastRowOffset ? lastRowOffset : rowOffset;
 
     return rowOffset;
 }
 
-// PRIVATE
-/*
-Helper function for checking whether row is within bounds
-*/
-Excel.prototype._isRowOffsetWithinBounds = function (rowOffset) {
-    if (typeof (rowOffset) !== 'number' || rowOffset == null) {
-        throw new TypeError('Expected number, got ' + typeof (rowOffset));
+/** @private */
+Excel.prototype._isRowOffsetWithinBounds = function (
+    /** @type {number} */
+    rowOffset
+) {
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
     let res = this._restrictRowOffset(rowOffset);
+
     return res === rowOffset;
 }
 
-// PRIVATE
-/*
-Search for specific content in singular row
-*/
-Excel.prototype._findCellAtRowOffset = function (search, rowOffset) {
-    if ((search instanceof RegExp === true || typeof (search) === 'string') === false || search == null) {
-        throw new TypeError('Expected Object(RegExp) | string, got ' + typeof (search));
+
+/** @private */
+Excel.prototype._findCellAtRowOffset = function (
+    /** @type {string | RegExp} */
+    search,
+    /** @type {number} */
+    rowOffset
+) {
+    if (!(search instanceof RegExp || typeof search === 'string')) {
+        throw new TypeError('Expected Object(RegExp) | string, got ' + typeof search);
     }
 
-    if (typeof (rowOffset) !== 'number' || rowOffset == null) {
-        throw new TypeError('Expected number, got ' + typeof (rowOffset));
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
     // Check row boundary
-    if (this._isRowOffsetWithinBounds(rowOffset) === false) {
+    if (!this._isRowOffsetWithinBounds(rowOffset)) {
         throw Error('Row offset is out of bounds');
     }
 
@@ -405,17 +415,49 @@ Excel.prototype._findCellAtRowOffset = function (search, rowOffset) {
             continue;
         }
 
-        return {
-            term: term,
-            matched: matched[0],
-            columnName: columnName,
-            columnIndex: curColumnIndex,
-            rowOffset: rowOffset,
-            rowIndex: rowIndex
-        }
+        return new Cell(term, columnName, curColumnIndex, rowOffset, rowIndex);
     }
 
     throw new Error('Search term was not found on row offset ' + rowOffset + ', row index ' + rowIndex);
+}
+
+function Cell(
+    /** @type {string} */
+    content,
+    /** @type {string} */
+    columnName,
+    /** @type {number} */
+    columnIndex,
+    /** @type {number} */
+    rowOffset,
+    /** @type {number} */
+    rowIndex
+) {
+    if (!(typeof content === 'string')) {
+        throw new TypeError('Expected string, got ' + typeof content);
+    }
+
+    if (!(typeof columnName === 'string')) {
+        throw new TypeError('Expected string, got ' + typeof columnName);
+    }
+
+    if (!(typeof columnIndex === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof columnIndex);
+    }
+
+    if (!(typeof rowOffset === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowOffset);
+    }
+
+    if (!(typeof rowIndex === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowIndex);
+    }
+
+    this.content = content;
+    this.columnName = columnName;
+    this.columnIndex = columnIndex;
+    this.rowOffset = rowOffset;
+    this.rowIndex = rowIndex;
 }
 
 let mappingHelper = new Excel();
