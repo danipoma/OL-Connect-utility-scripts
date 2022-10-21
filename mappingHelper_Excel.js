@@ -12,6 +12,10 @@ Index is most likely 0-based, however due to inaccessibility
 to header column by standard means, it will be viewed as 1-based.
 */
 
+/** 
+ * @typedef {Object} Excel
+ * @constructor
+ */
 function Excel(
     /** @type {string} */
     baseName
@@ -421,6 +425,10 @@ Excel.prototype._findCellAtRowOffset = function (
     throw new Error('Search term was not found on row offset ' + rowOffset + ', row index ' + rowIndex);
 }
 
+/** 
+ * @typedef {Object} Cell
+ * @constructor
+ */
 function Cell(
     /** @type {string} */
     content,
