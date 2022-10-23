@@ -4,6 +4,12 @@
 OL Connect / Planetpress JS engine doesn't have modern features built in (const, classes etc.),
 that is why script might seem archaic.
 
+# Tips & Tricks
+
+If you want to have bigger block of code in location mode, you can have that.
+
+
+
 # Scripts for OL Connect / Planetpress
 
 ## deduplication.js
@@ -20,7 +26,7 @@ deduplicate(input: any): string;
 ```
 
 ## mappingHelper_Excel.js
-- Contains utility functions for Objectif Lune's PlanetPress Connect Application - Excel mapper format.
+- Contains utility functions for Objectif Lune's PlanetPress Connect Application (DataMapper) - Excel mapper format.
 
 Methods/Functions meant for public use are decorated with @public keyword.
 
@@ -53,7 +59,7 @@ If you don't specify range of search, it will assume to search from your positio
 to next 100 lines (unless there are less lines).
 
 ## mappingHelper_PDF.js
-- Contains utility functions for Objectif Lune's PlanetPress Connect Application - PDF mapper format.
+- Contains utility functions for Objectif Lune's PlanetPress Connect Application (DataMapper) - PDF mapper format.
 
 Methods/Functions meant for public use are decorated with @public keyword.
 
