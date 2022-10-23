@@ -11,11 +11,12 @@ that is why script might seem archaic.
 but there are couple of checks before function does it's job to try to mitigate possibility
 that duplicity didn't occur.
 
-'aabb' -> 'ab'
+'aabb' -> 'ab'  
 'aabbc' -> 'aabbc'
 
+Call it like this:
 ```javascript
-deduplicate(input);
+deduplicate(input: any): string;
 ```
 
 ## mappingHelper_Excel.js
