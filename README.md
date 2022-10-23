@@ -25,7 +25,7 @@ logic, you can do it in location-based extraction and still get benefits of seei
 And there is no limitation. If you want to gather multiple locations through `data.extract()`, 
 you certainly can.
 
-It is working just like Script-based extraction, but you get visibility of one region on as a cherry on top.
+It is working just like script-based extraction, but you get visibility of one region on as a cherry on top.
 ## Adjust record information field second time
 PlanetPress DataMapper doesn't allow you to extract twice into same field by using Extract Step.
 
