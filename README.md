@@ -18,16 +18,16 @@ return a + b;
 })[0];
 ```
 
-This is the best. You can still use what location gathered (variable `x`)
-and you can still see what region it gathered, so if you need to do some complex
-logic, you can do it in location-based extraction and still get benefits of seeing that region.
+You can use what we extracted (variable `x`) and you can also see what region it gathered, 
+so if you need to do some complex logic, you can do it in location-based extraction 
+and still get added benefits.
 
 And there is no limitation. If you want to gather multiple locations through `data.extract()`, 
 you certainly can.
 
-It is working just like script-based extraction, but you get visibility of one region on as a cherry on top.
-## Adjust record information field second time
-PlanetPress DataMapper doesn't allow you to extract twice into same field by using Extract Step.
+It is working just like script-based extraction, but you get visibility of one region on top of it.
+## Adjust record information field multiple times
+PlanetPress DataMapper allows you to extract certain field only once per record.
 
 You can however use Action Step.
 
@@ -37,9 +37,9 @@ You can access current record (if in loop) like this:
 record.tables.detail[steps.currentLoopCounter-1].fields.YourField = 'Your New Value';
 ```
 
-Just note that you can't save this path to variable since it copies value, it doesn't make a reference to it.
+Just note that you can't save this path to variable since it copies value instead of making a reference to it.
 
-But I would refrain from using steps.currentLoopCounter as it doesn't give you intellisense on your fields
+But I would refrain from using `steps.currentLoopCounter` as it doesn't give you intellisense on your fields
 and also limits your possibilities of use.
 
 Rather create counter variable and increase count every time you find a new record.
@@ -92,7 +92,7 @@ mappingHelper.getColumnName(columnIndex: number): string;
 
 But main reason I created this mappingHelper is this method:
 ```javascript
-mappingHelper.findCell(search: string | RegExp, startRowOffset: ?number, stopRowOffset: ?number);
+mappingHelper.findCell(search: string | RegExp, startRowOffset: ?number, stopRowOffset: ?number): Cell;
 ```
 
 It handles multiple scenarios to give you pointers on where your data is.
