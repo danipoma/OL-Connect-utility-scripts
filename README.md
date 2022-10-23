@@ -8,7 +8,7 @@ that is why script might seem archaic.
 ## Complex scripts in Location Mode
 In that mode, you are restricted to method chaining.
 
-In that case you can do this:
+However we can break ourselves free like this:
 ```javascript
 split().map(x => {
 // I am free!
