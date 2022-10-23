@@ -105,7 +105,9 @@ You don't know on which line your header line starts?
 This solves your problem.
 
 It is bounds checked, so you shouldn't be able to get Out of Bounds Exception,
-you can specify how many lines it should search through before giving up
+so in case you overshoot your input, it will get normalized to current bounds.
+
+You can specify how many lines it should search through before giving up
 (throws an exception if it didn't find anything).
 
 If you don't specify range of search, it will assume to search from your position
@@ -131,16 +133,21 @@ mappingHelper.getCurrentPosition(): RecordCoordinates;
 mappingHelper.moveTo(page: RecordCoordinates | number, height: ?number): void;
 ```
 
+Where would you use this function?
+
 For example you are extracting lines and want to exclude additional costs, but that text might not be on same line,
 it might have broken off to next page.
 
-Previously you had to loop through all lines and save them in array to then populate them into your result set afterwards.
+Previously you had to loop through all lines and save them in array, make some checks to filter out unneeded information,
+then populate those records into your result set.
+
 You could use `data.moveTo()`, but it has only two move possibilities:
-- Move by page (which isn't useful to your case)
-- Move by index that is calculated from first page, which is nonsensical to your case also, because index from top can't 
-be naively implemented since PDF can have multiple sizes on different pages.
+- Move by page (which isn't useful to your case) since you also have be able to move to correct height to continue looping from previous position
+- Move by index that is calculated from first page, which is unusuable to your case, because index from top can't be naively implemented since PDF can have multiple sizes on different pages.
 
 This solves your issue.
+
+Those methods are bounds checked and normalized in case you under/overshoot your input.
 
 Simply call this code to save your current position;
 
