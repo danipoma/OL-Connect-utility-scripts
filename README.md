@@ -93,7 +93,7 @@ And when you are ready to return back, call:
 mappingHelper.moveTo(curPos);
 ```
 
-If you want to specify page and height, you can also by calling it like this:
+If you want to specify page and height instead, you can do that also:
 ```javascript
 mappingHelper.moveTo(page, height);
 ```
