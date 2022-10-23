@@ -135,7 +135,7 @@ For example you are extracting lines and want to exclude additional costs, but t
 it might have broken off to next page.
 
 Previously you had to loop through all lines and save them in array to then populate them into your result set afterwards.
-You could use data.moveTo(), but it has only two move possibilities:
+You could use `data.moveTo()`, but it has only two move possibilities:
 - Move by page (which isn't useful to your case)
 - Move by index that is calculated from first page, which is nonsensical to your case also, because index from top can't 
 be naively implemented since PDF can have multiple sizes on different pages.
