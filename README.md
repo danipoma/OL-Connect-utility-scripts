@@ -5,10 +5,58 @@ OL Connect / Planetpress JS engine doesn't have modern features built in (const,
 that is why script might seem archaic.
 
 # Tips & Tricks
+## Complex scripts in Location Mode
+In that mode, you are restricted to method chaining.
 
-If you want to have bigger block of code in location mode, you can have that.
+In that case you can do this:
+```javascript
+split().map(x => {
+// I am free!
+let a = 5;
+let b = 10;
+return a + b;
+})[0];
+```
 
+Best case on this is that you can still use what location gathered (variable `x`)
+and you can still see what region it gathered.
 
+## Adjust record information field second time
+PlanetPress DataMapper doesn't allow you to extract twice into same field by using Extract Step.
+
+You can however use Action Step.
+
+You can access current record (if in loop) like this:
+
+```javascript
+record.tables.detail[steps.currentLoopCounter-1].fields.YourField = 'Your New Value';
+```
+
+Just note that you can't save this path to variable since it copies value, it doesn't make a reference to it.
+
+But I would refrain from using steps.currentLoopCounter as it doesn't give you intellisense on your fields
+and also limits your possibilities of use.
+
+Rather create counter variable and increase count every time you find a new record.
+
+```javascript
+let recordCnt = -1;
+```
+
+Then increase it at some point:
+
+```javascript
+recordCnt++;
+```
+
+Then finally use it:
+
+```javascript
+record.tables.detail[recordCnt].fields.YourField = 'Your New Value';
+```
+
+By using it like that, you can restrain some parts of your gathering based on your `recordCnt` state,
+you can also have secondary variable and have calculation logic that would allow line splitting etc.
 
 # Scripts for OL Connect / Planetpress
 
