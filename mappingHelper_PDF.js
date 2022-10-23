@@ -304,8 +304,9 @@ PDF.prototype._moveToPage = function (
 		signatureFound = true;
 		/*
 		I wanted to use getRecordCoordinates() that already has bound checking,
-		however it depends on page overview being evaluated, however this method
-		is being before that happens, so that's why we check bounds here.
+		but that method depends on page overview being evaluated, however this method
+		is being used in that method that evaluates page overview, so we have to use
+		this approach.
 		*/
 		pageNumber = page > this.TOTAL_PAGES ? this.TOTAL_PAGES : page;
 	}
