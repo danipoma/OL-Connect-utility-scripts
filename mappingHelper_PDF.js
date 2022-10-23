@@ -98,6 +98,11 @@ function PDF() {
 	 * @private
 	 * @type {number}
 	*/
+	this._MIN_HEIGHT = 0;
+	/**
+	 * @private
+	 * @type {number}
+	*/
 	this._FIRST_PAGE = 1;
 	/** @type {number} */
 	this.TOTAL_PAGES = this._getTotalPages();
@@ -236,6 +241,49 @@ PDF.prototype._getTotalPages = function () {
 }
 
 /** @private */
+PDF.prototype._restrictToPageNumberBounds = function (
+	/** @type {number} */
+	page) {
+
+	if (!(typeof page === 'number')) {
+		throw new TypeError('Expected number, got ' + typeof page);
+	}
+
+	// Bound checking
+	page = page > this.TOTAL_PAGES ? this.TOTAL_PAGES : page;
+	page = page < this._FIRST_PAGE ? this._FIRST_PAGE : page;
+
+	return page;
+}
+
+/** @private */
+PDF.prototype._restrictToPageHeightBounds = function (
+	/** @type {number} */
+	page,
+	/** @type {number} */
+	height) {
+	if (!(typeof page === 'number')) {
+		throw new TypeError('Expected number, got ' + typeof page);
+	}
+
+	if (!(typeof height === 'number')) {
+		throw new TypeError('Expected number, got ' + typeof height);
+	}
+
+	// Bound check page number
+	page = this._restrictToPageNumberBounds(page);
+
+	// Bound check height of page
+	let referencedPage = this._PAGES.filter(item => item.pageNumber === page)[0];
+	let referencedPageHeight = referencedPage.pageHeight;
+
+	height = height > referencedPageHeight ? referencedPageHeight : height;
+	height = height < this._MIN_HEIGHT ? this._MIN_HEIGHT : height;
+
+	return height;
+}
+
+/** @private */
 PDF.prototype._restrictToRecordBounds = function (
 	/** @type {number} */
 	page,
@@ -249,12 +297,11 @@ PDF.prototype._restrictToRecordBounds = function (
 		throw new TypeError('Expected number, got ' + typeof height);
 	}
 
-	page = page > this.TOTAL_PAGES ? this.TOTAL_PAGES : page;
+	// Bound check page number
+	page = this._restrictToPageNumberBounds(page);
 
-	let referencedPage = this._PAGES.filter(item => item.pageNumber === page)[0];
-	let referencedPageHeight = referencedPage.pageHeight;
-
-	height = height > referencedPageHeight ? referencedPageHeight : height;
+	// Bound check height of page
+	height = this._restrictToPageHeightBounds(page, height);
 
 	return new RecordCoordinates(page, height);
 }
@@ -308,7 +355,7 @@ PDF.prototype._moveToPage = function (
 		is being used in that method that evaluates page overview, so we have to use
 		this approach.
 		*/
-		pageNumber = page > this.TOTAL_PAGES ? this.TOTAL_PAGES : page;
+		pageNumber = this._restrictToPageNumberBounds(page);
 	}
 
 	if (!signatureFound) {
