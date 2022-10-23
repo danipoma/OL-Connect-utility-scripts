@@ -75,8 +75,9 @@ For example you are extracting lines and want to exclude additional costs, but t
 it might have broken off to next page.
 
 Previously you had to loop through all lines and save them in array to then populate them into your result set afterwards.
-You could use data.moveTo, but it has only two move possibilities. Either page (which isn't useful to your case) or 
-move by index that is calculated from first page, which is nonsensical to your case also, because index from top can't 
+You could use data.moveTo(), but it has only two move possibilities:
+- Move by page (which isn't useful to your case)
+- Move by index that is calculated from first page, which is nonsensical to your case also, because index from top can't 
 be naively implemented since PDF can have multiple sizes on different pages.
 
 This solves your issue.
@@ -90,4 +91,9 @@ let curPos = mappingHelper.getCurrentPosition();
 And when you are ready to return back, call:
 ```javascript
 mappingHelper.moveTo(curPos);
+```
+
+If you want to specify page and height, you can also by calling it like this:
+```javascript
+mappingHelper.moveTo(page, height);
 ```
