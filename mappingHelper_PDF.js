@@ -1,4 +1,11 @@
-/** 
+/**
+ * This object type should not be directly called.
+ *
+ * You should use PDF._getCurrentPage() on instantiated PDF object.
+ * There currently isn't any checking implemented since we only have
+ * this method, which calls to function which should pass us valid
+ * boundaries.
+ *
  * @typedef {Object} Page
  * @constructor
  */
@@ -29,7 +36,16 @@ function Page(
 	this.pageWidth = pageWidth;
 }
 
-/** 
+/**
+ * This object type should not be directly called.
+ *
+ * You should use PDF.getRecordCoordinates() method on instantiated object
+ * as it does needed checks that are available in PDF instance.
+ *
+ * Holds coordinates in current file that can be used to calculate
+ * RecordIndex, which is used to pass into exposed 3rd party API
+ * to get us to position we requested.
+ *
  * @typedef {Object} RecordCoordinates
  * @constructor
  */
@@ -52,7 +68,13 @@ function RecordCoordinates(
 	this.height = height;
 }
 
-/** 
+/**
+ * This object type should not be directly called.
+ *
+ * You should use PDF._getRecordIndex() on instantiated object
+ * as it works with RecordCoordinates, which is checked if called
+ * through PDF.getRecordCoordinates()
+ *
  * @typedef {Object} RecordIndex
  * @constructor
  */
@@ -67,16 +89,35 @@ function RecordIndex(
 	this.value = recordIndex;
 }
 
-/** 
+/**
  * @typedef {Object} PDF
  * @constructor
  */
 function PDF() {
-	/** @type {number} */
+	/**
+	 * @private
+	 * @type {number}
+	*/
 	this._FIRST_PAGE = 1;
 	/** @type {number} */
 	this.TOTAL_PAGES = this._getTotalPages();
 
+	/**
+	 * @private
+	 * @type {number}
+	*/
+	this._UNIT_PAGE_NUMBER = 1
+
+	/**
+	 * @private
+	 * @type {number}
+	*/
+	this._UNIT_RECORD_INDEX = 0;
+
+	/*
+	We can't use method getCurrentPosition() since at this point in
+	time we don't have all needed info to use it (Call to _PAGES).
+	*/
 	let currentPage = this.getCurrentPageNumber();
 	let currentHeight = this.getCurrentHeight();
 
@@ -93,9 +134,9 @@ PDF.prototype.getCurrentPosition = function () {
 	return this.getRecordCoordinates(currentPageNumber, currentHeight);
 }
 
-/** 
+/**
  * Function retrieves information about every page.
- * Pages in PDF can be be in various sizes, so we have to keep a record for every page
+ * Pages in PDF can be be in various sizes, so we have to keep record for every page.
  * @private */
 PDF.prototype._getPages = function () {
 	let pages = [];
@@ -108,7 +149,7 @@ PDF.prototype._getPages = function () {
 	return pages;
 }
 
-/** 
+/**
  * @public
  * @overloading
 */
@@ -119,7 +160,7 @@ PDF.prototype.moveTo = function (
 	height) {
 
 	let signatureFound = false;
-	/** @type {?RecordCoordinates} */
+	/** @type {RecordCoordinates} */
 	let coordinates;
 
 	if (page instanceof RecordCoordinates) {
@@ -141,7 +182,10 @@ PDF.prototype.moveTo = function (
 	this._moveToByRecordIndex(recordIdx);
 }
 
-/** @public */
+/**
+ * @public
+ * @constructs RecordCoordinates
+ */
 PDF.prototype.getRecordCoordinates = function (
 	/** @type {number} */
 	page,
@@ -172,7 +216,10 @@ PDF.prototype.getCurrentPageNumber = function () {
 	return result;
 }
 
-/** @private */
+/**
+ * @private
+ * @constructs Page
+ */
 PDF.prototype._getCurrentPage = function () {
 	let pageNumber = this.getCurrentPageNumber();
 	let pageHeight = this._getCurrentPageHeight();
@@ -220,7 +267,7 @@ PDF.prototype._moveToByRecordIndex = function (
 		throw new TypeError('Expected Object(RecordIndex), got ' + typeof recordIndex);
 	}
 
-	steps.moveTo(0, recordIndex.value);
+	steps.moveTo(this._UNIT_RECORD_INDEX, recordIndex.value);
 }
 
 /** @private */
@@ -237,7 +284,7 @@ PDF.prototype._getCurrentPageWidth = function () {
 	return result;
 }
 
-/** 
+/**
  * @private
  * @overloading
 */
@@ -245,7 +292,7 @@ PDF.prototype._moveToPage = function (
 	/** @type {RecordCoordinates | number} */
 	page) {
 	let signatureFound = false;
-	/** @type {?numb} */
+	/** @type {number} */
 	let pageNumber;
 
 	if (page instanceof RecordCoordinates) {
@@ -256,19 +303,20 @@ PDF.prototype._moveToPage = function (
 	if (typeof page === 'number') {
 		signatureFound = true;
 
-		pageNumber = pageNumber > this.TOTAL_PAGES ? this.TOTAL_PAGES : pageNumber;
-		
-		pageNumber = page;
+		pageNumber = page > this.TOTAL_PAGES ? this.TOTAL_PAGES : page;
 	}
 
 	if (!signatureFound) {
 		throw new TypeError('Signature ' + typeof page + ' was not found in overloaded options');
 	}
 
-	steps.moveTo(1, pageNumber);
+	steps.moveTo(this._UNIT_PAGE_NUMBER, pageNumber);
 }
 
-/** @private */
+/**
+ * @private
+ * @constructs RecordIndex
+ */
 PDF.prototype._getRecordIndex = function (
 	/** @type {RecordCoordinates} */
 	coordinates) {
