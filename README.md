@@ -18,9 +18,14 @@ return a + b;
 })[0];
 ```
 
-Best case on this is that you can still use what location gathered (variable `x`)
-and you can still see what region it gathered.
+This is the best. You can still use what location gathered (variable `x`)
+and you can still see what region it gathered, so if you need to do some complex
+logic, you can do it in location-based extraction and still get benefits of seeing that region.
 
+And there is no limitation. If you want to gather multiple locations through `data.extract()`, 
+you certainly can.
+
+It is working just like Script-based extraction, but you get visibility of one region on as a cherry on top.
 ## Adjust record information field second time
 PlanetPress DataMapper doesn't allow you to extract twice into same field by using Extract Step.
 
