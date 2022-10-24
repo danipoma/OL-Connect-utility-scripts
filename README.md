@@ -6,7 +6,7 @@ that is why script might seem archaic.
 
 # Tips & Tricks
 ## Complex scripts in Location Mode
-In that mode, you are restricted to method chaining.
+In that mode you are not allowed to use statements.
 
 However we can break ourselves free like this:
 ```javascript
