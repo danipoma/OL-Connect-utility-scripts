@@ -2,14 +2,6 @@
 This helper was written using Object prototype, because classes,
 default values in function signature, const etc. are not supported
 in software we use.
-
-NOTE:
-Excel mapper works with offset (0-based, relative),
-however first accessible line index is returning 1
-(meaning index is 1-based, absolute).
-
-Index is most likely 0-based, however due to inaccessibility
-to header column by standard means, it will be viewed as 1-based.
 */
 
 /** 
@@ -82,7 +74,7 @@ function Excel(
      * @private
      * @type {number}
     */
-    this._startRowIndex = 1;
+    this._firstRowIndex = 0;
 
     /*
     I expect column iterator to use numbers, that's why I am not allowing
@@ -97,7 +89,7 @@ function Excel(
      * @private
      * @type {number}
     */
-    this._startColumnIndex = 1;
+    this._firstColumnIndex = 1;
 
     // Call initialization methods
     this._getRowSpan();
@@ -111,7 +103,7 @@ Excel.prototype.getLastColumnName = function () {
 
 /** @public */
 Excel.prototype.getFirstColumnName = function () {
-    return this.getColumnName(this._startColumnIndex);
+    return this.getColumnName(this._firstColumnIndex);
 }
 
 /** @public */
@@ -196,12 +188,12 @@ Excel.prototype.getRowAtRowOffset = function (
         excludeBlankCells = true;
     }
 
-    // Restrict to file index bounds
+    // Apply row bounds
     rowOffset = this._restrictRowOffset(rowOffset);
 
     let row = [];
 
-    for (let curColumnIndex = this._startColumnIndex; curColumnIndex <= this._lastColumnIndex; ++curColumnIndex) {
+    for (let curColumnIndex = this._firstColumnIndex; curColumnIndex <= this._lastColumnIndex; ++curColumnIndex) {
         let columnName = this.getColumnName(curColumnIndex);
         let cellValue = this._getCellValueByOffset(columnName, rowOffset);
 
@@ -240,7 +232,7 @@ Excel.prototype._rowExists = function (
         throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
-    let columnName = this.getColumnName(this._startColumnIndex)
+    let columnName = this.getColumnName(this._firstColumnIndex)
 
     try {
         /*
@@ -274,6 +266,40 @@ Excel.prototype._getCellValueByOffset = function (
     return result;
 }
 
+/**
+ * Gets you current row offset from topmost line (can be interpreted also as index)
+ *  @private */
+Excel.prototype._getCurrentRowOffset = function () {
+    /*
+    step range to decrease iteration count
+    idea is to have higher step number and if column is suddenly not found
+    then are going to go a step back
+    */
+    let step = this._START_ROW_STEP;
+    /*
+    PPress row starts with 1
+    */
+    for (let rowOffset = step; ; rowOffset += step) {
+
+        if (!this._rowExists(-rowOffset)) {
+            if (step === 1) {
+                return rowOffset - step;
+            }
+
+            rowOffset -= step;
+            step = this._reduceMagnitude(step);
+            continue;
+        }
+
+        /*
+        Safety net as I have yet to see this PO excel in my lifetime
+        */
+        if (rowOffset >= this._MAX_ROW_SPAN) {
+            throw new RangeError('Range exceeded ' + rowOffset + ' iterations');
+        }
+    }
+}
+
 /** @private */
 Excel.prototype._rowOffsetToIndex = function (
     /** @type {number} */
@@ -283,7 +309,11 @@ Excel.prototype._rowOffsetToIndex = function (
         throw new TypeError('Expected number, got ' + typeof rowOffset);
     }
 
-    return this._getCurrentRowOffset() + rowOffset
+    let currentOffset = this._getCurrentRowOffset();
+
+    let res = currentOffset + rowOffset;
+
+    return res;
 }
 
 /** @private */
@@ -297,18 +327,9 @@ Excel.prototype._rowIndexToOffset = function (
 
     let currentOffset = this._getCurrentRowOffset();
 
-    if (currentOffset > rowIndex) {
-        return currentOffset - rowIndex;
-    }
+    let res = rowIndex - currentOffset;
 
-    return rowIndex - currentOffset;
-}
-
-/** @private */
-Excel.prototype._getCurrentRowOffset = function () {
-    /** @type {number} */
-    let result = steps.currentPosition
-    return result;
+    return res;
 }
 
 /** @private */
@@ -322,7 +343,7 @@ Excel.prototype._getColumnSpan = function () {
     /*
     Planetpress column starts with 1 - COLUMN1 for example
     */
-    for (let columnIndex = this._startColumnIndex + step; ; columnIndex += step) {
+    for (let columnIndex = this._firstColumnIndex + step; ; columnIndex += step) {
         let columnName = this.getColumnName(columnIndex);
 
         if (!this._columnExists(columnName)) {
@@ -356,7 +377,7 @@ Excel.prototype._getRowSpan = function () {
     /*
     PPress row starts with 1
     */
-    for (let rowOffset = this._rowIndexToOffset(this._startRowIndex + step); ; rowOffset += step) {
+    for (let rowOffset = this._rowIndexToOffset(this._firstRowIndex + step); ; rowOffset += step) {
 
         if (!this._rowExists(rowOffset)) {
             if (step === 1) {
@@ -405,18 +426,56 @@ Excel.prototype._restrictRowOffset = function (
 
     // Make sure that index is whole number
     rowOffset = parseInt(rowOffset, 10);
-
-    let startRowOffset = this._rowIndexToOffset(this._startRowIndex);
+    let firstRowOffset = this._rowIndexToOffset(this._firstRowIndex);
     let lastRowOffset = this._rowIndexToOffset(this._lastRowIndex);
 
     // Restrict lower bound
-    rowOffset = rowOffset < startRowOffset ? startRowOffset : rowOffset;
+    rowOffset = rowOffset < firstRowOffset ? firstRowOffset : rowOffset;
 
     // Restrict upper bound
     rowOffset = rowOffset > lastRowOffset ? lastRowOffset : rowOffset;
 
     return rowOffset;
 }
+
+/** @private */
+Excel.prototype._restrictRowIndex = function (
+    /** @type {number} */
+    rowIndex
+) {
+    if (!(typeof rowIndex === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowIndex);
+    }
+
+    // Make sure that index is whole number
+    rowIndex = parseInt(rowIndex, 10);
+
+    let firstRowIndex = this._firstRowIndex;
+    let lastRowIndex = this._lastRowIndex;
+
+    // Restrict lower bound
+    rowIndex = rowIndex < firstRowIndex ? firstRowIndex : rowIndex;
+
+    // Restrict upper bound
+    rowIndex = rowIndex > lastRowIndex ? lastRowIndex : rowIndex;
+
+    return rowIndex;
+}
+
+/** @private */
+Excel.prototype._isRowIndexWithinBounds = function (
+    /** @type {number} */
+    rowIndex
+) {
+    if (!(typeof rowIndex === 'number')) {
+        throw new TypeError('Expected number, got ' + typeof rowIndex);
+    }
+
+    let res = this._restrictRowIndex(rowIndex);
+
+    return res === rowIndex;
+}
+
 
 /** @private */
 Excel.prototype._isRowOffsetWithinBounds = function (
@@ -455,7 +514,7 @@ Excel.prototype._findCellAtRowOffset = function (
 
     let rowIndex = this._rowOffsetToIndex(rowOffset);
 
-    for (let curColumnIndex = this._startColumnIndex; curColumnIndex <= this._lastColumnIndex; ++curColumnIndex) {
+    for (let curColumnIndex = this._firstColumnIndex; curColumnIndex <= this._lastColumnIndex; ++curColumnIndex) {
         let columnName = this.getColumnName(curColumnIndex);
         let term = this._getCellValueByOffset(columnName, rowOffset);
         let matched = term.match(search);
