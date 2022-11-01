@@ -88,6 +88,7 @@ There are couple of public minor helper methods:
 mappingHelper.getLastColumnName(): string;
 mappingHelper.getFirstColumnName(): string;
 mappingHelper.getColumnName(columnIndex: number): string;
+mappingHelper.getRowAtRowOffset(rowOffset: ?number, excludeBlankCells: ?boolean): string[];
 ```
 
 But main reason I created this mappingHelper is this method:
