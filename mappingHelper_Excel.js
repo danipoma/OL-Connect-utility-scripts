@@ -17,7 +17,7 @@ to header column by standard means, it will be viewed as 1-based.
  * @constructor
  */
 function Excel(
-    /** @type {string} */
+    /** @type {?string} */
     baseName
 ) {
     if (!(typeof baseName === 'string' || baseName == null)) {
@@ -170,6 +170,51 @@ Excel.prototype.getColumnName = function (
     }
 
     return this._baseName + columnIndex;
+}
+
+/** @public */
+Excel.prototype.getRowAtRowOffset = function (
+    /** @type {?number} */
+    rowOffset,
+    /** @type {?boolean} */
+    excludeBlankCells
+) {
+    if (!(typeof rowOffset === 'number' || rowOffset == null)) {
+        throw new TypeError('Expected number | null, got ' + typeof rowOffset);
+    }
+
+    if (!(typeof excludeBlankCells === 'boolean' || excludeBlankCells == null)) {
+        throw new TypeError('Expected boolean | null, got ' + typeof excludeBlankCells);
+    }
+
+    if (rowOffset == null) {
+        // get current row
+        rowOffset = 0;
+    }
+
+    if (excludeBlankCells == null) {
+        excludeBlankCells = true;
+    }
+
+    // Restrict to file index bounds
+    rowOffset = this._restrictRowOffset(rowOffset);
+
+    let row = [];
+
+    for (let curColumnIndex = this._startColumnIndex; curColumnIndex <= this._lastColumnIndex; ++curColumnIndex) {
+        let columnName = this.getColumnName(curColumnIndex);
+        let cellValue = this._getCellValueByOffset(columnName, rowOffset);
+
+        if (excludeBlankCells) {
+            if (cellValue === '') {
+                continue;
+            }
+        }
+
+        row.push(cellValue);
+    }
+
+    return row;
 }
 
 /** @private */
