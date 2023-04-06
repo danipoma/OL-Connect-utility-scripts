@@ -18,5 +18,5 @@ Call it like this:
 
 ```javascript
 // Tell validator which order type we will be validating (like OC, EU-SN, ASIA-SN, DWNP, PO, QUOTATION)
-let mappingValidator = new Validator('');
+let mappingValidator = new Validator('PO');
 ```
