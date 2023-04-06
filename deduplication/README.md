@@ -5,6 +5,7 @@ but there are couple of checks before function does its job to try to mitigate p
 that duplicity didn't occur.
 
 'aabb' -> 'ab'
+
 'aabbc' -> 'aabbc'
 
 Call it like this:
