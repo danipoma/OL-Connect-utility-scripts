@@ -1,6 +1,6 @@
 # testingLib.js
 
-- Implements some basic testing functionality that can be used to validate
+Implements some basic testing functionality that can be used to validate
 field information even further if need be.
 
 We expect function on the input when constructing Test,

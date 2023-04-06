@@ -1,6 +1,6 @@
 # mappingHelper_PDF.js
 
-- Contains utility functions for Objectif Lune's PlanetPress Connect Application (DataMapper) - PDF mapper format.
+Contains utility functions for Objectif Lune's PlanetPress Connect Application (DataMapper) - PDF mapper format.
 
 Methods/Functions meant for public use are decorated with @public keyword.
 

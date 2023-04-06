@@ -1,6 +1,6 @@
 # mappingHelper_Excel.js
 
-- Contains utility functions for Objectif Lune's PlanetPress Connect Application (DataMapper) - Excel mapper format.
+Contains utility functions for Objectif Lune's PlanetPress Connect Application (DataMapper) - Excel mapper format.
 
 Methods/Functions meant for public use are decorated with @public keyword.
 
