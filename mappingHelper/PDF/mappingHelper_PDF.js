@@ -380,4 +380,88 @@ PDF.prototype._getRecordIndex = function (
 	return new RecordIndex(recordIdx);
 }
 
+/**
+ * @static
+ * @overloading
+ */
+PDF.findTextPosition = function (
+	/** @type {RegExp | string} */
+	search,
+	/** @type {number | null | undefined} */
+	height) {
+	if (!(search instanceof RegExp || typeof search === 'string')) {
+		throw new TypeError('Expected Object(RegExp) | string, got ' + typeof search);
+	}
+
+	if (height === null || height === undefined) {
+		height = 4;
+	}
+
+	if (!(typeof height === 'number')) {
+		throw new TypeError('Expected number, got ' + typeof height);
+	}
+
+
+	let leftPosition = 0;
+	let rightPosition = Math.floor(steps.currentPageWidth);
+	// Normally pages are around 300, so we jump marginally to decrease loop count
+	let INITIAL_STEP_BY = 100;
+	let offset = 0;
+
+	// limit to offset 100 should be enough since user should be near text they want to find
+	for (; offset <= 100; offset++) {
+		let wholeContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
+
+
+		if (wholeContent.match(search) === null) {
+			continue;
+		}
+
+		for (let stepBy = INITIAL_STEP_BY; true;) {
+			leftPosition += stepBy;
+			let lookupContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
+
+			if (lookupContent.match(search) === null && stepBy <= 1) {
+				leftPosition -= stepBy;
+				break;
+			}
+
+			if (lookupContent.match(search) === null) {
+				leftPosition -= stepBy;
+				stepBy /= 10;
+				continue;
+			}
+
+			if (lookupContent.match(search) !== null) {
+				continue;
+			}
+		}
+
+		for (let stepBy = INITIAL_STEP_BY; true;) {
+			rightPosition -= stepBy;
+			let lookupContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
+
+			if (lookupContent.match(search) === null && stepBy <= 1) {
+				rightPosition += stepBy;
+				break;
+			}
+
+			if (lookupContent.match(search) === null) {
+				rightPosition += stepBy;
+				stepBy /= 10;
+				continue;
+			}
+
+			if (lookupContent.match(search) !== null) {
+				continue;
+			}
+		}
+
+		return { left: leftPosition, right: rightPosition };
+	}
+
+	throw new Error("Text position was not found");
+}
+
+
 let mappingHelper = new PDF();
