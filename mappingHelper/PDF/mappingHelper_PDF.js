@@ -457,7 +457,7 @@ PDF.findTextPosition = function (
 			}
 		}
 
-		return { left: leftPosition, right: rightPosition };
+		return { left: leftPosition, right: rightPosition, offset: offset };
 	}
 
 	throw new Error("Text position was not found");

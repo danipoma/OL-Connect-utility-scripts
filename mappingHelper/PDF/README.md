@@ -58,5 +58,5 @@ Additionally I added static method for finding text position.
 It searches 100mm from your current position forward for text you specify.
 
 ```javascript
-PDF.findTextPosition(search: RegExp | string, height: number | null | undefined): void;
+PDF.findTextPosition(search: RegExp | string, height: number | null | undefined): { left: number, right: number, offset: number };
 ```
