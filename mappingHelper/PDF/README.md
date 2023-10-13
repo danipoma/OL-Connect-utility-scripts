@@ -77,8 +77,7 @@ x y z
 
 Then it would not find it, because `data.extract()` would output it as `a a a<line-separator>x y z` and not `a<text-break>x a<text-break>y a<text-break>z`
 
-You can provide RegExp pattern or string and optionally you can provide argument (height) that will specify which height your line that you search has.
-By default it is set to 4.
+You can provide RegExp pattern or string and optionally you can provide argument height (that corresponds to line height, default: 4) and maxOffset (that corresponds to how big search area can be, default: 100)
 
 ```javascript
 PDF.findTextPosition(search)
