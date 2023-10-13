@@ -407,7 +407,9 @@ PDF.findTextPosition = function (
     /** @type {RegExp | string} */
     search,
     /** @type {number | null | undefined} */
-    height) {
+    height,
+    /** @type {number | null | undefined} */
+    maxOffset) {
     if (!(search instanceof RegExp || typeof search === 'string')) {
         throw new TypeError('Expected PDF.findTextPosition(search: Object(RegExp) | string), got PDF.findTextPosition(search: ' + typeof search + ')');
     }
@@ -420,6 +422,13 @@ PDF.findTextPosition = function (
         throw new TypeError('Expected PDF.findTextPosition(height: number), got PDF.findTextPosition(height: ' + typeof height + ')');
     }
 
+    if (maxOffset === null || maxOffset === undefined) {
+        maxOffset = 100;
+    }
+
+    if (!(typeof maxOffset === 'number')) {
+        throw new TypeError('Expected PDF.findTextPosition(maxOffset: number), got PDF.findTextPosition(maxOffset: ' + typeof maxOffset + ')');
+    }
 
     let leftPosition = 0;
     let rightPosition = Math.floor(steps.currentPageWidth);
@@ -427,8 +436,7 @@ PDF.findTextPosition = function (
     let INITIAL_STEP_BY = 100;
     let offset = 0;
 
-    // limit to offset 100 should be enough since user should be near text they want to find
-    for (; offset <= 100; offset++) {
+    for (; offset <= maxOffset; offset++) {
         let wholeContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
 
 
@@ -479,7 +487,7 @@ PDF.findTextPosition = function (
         return { left: leftPosition, right: rightPosition, offset: offset };
     }
 
-    throw new Error("PDF.findTextPosition() throws exception: Text position was not found");
+    return null;
 }
 
 

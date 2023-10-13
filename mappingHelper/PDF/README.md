@@ -18,7 +18,7 @@ But main reason I created this mappingHelper are these methods:
 ```javascript
 mappingHelper.moveTo(page: RecordIndex | RecordCoordinates | number, height: ?number): void;
 mappingHelper.moveBy(offset: number): void;
-PDF.findTextPosition(search: RegExp | string, height: ?number): { left: number, right: number, offset: number };
+PDF.findTextPosition(search: RegExp | string, height: ?number, maxOffset: ?number): { left: number, right: number, offset: number };
 ```
 
 Where would you use this function?
