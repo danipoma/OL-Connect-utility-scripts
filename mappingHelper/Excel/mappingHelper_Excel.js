@@ -142,14 +142,16 @@ Excel.prototype.findCell = function (
     stopRowOffset = this._restrictRowOffset(stopRowOffset);
 
     for (let curRowOffset = startRowOffset; curRowOffset <= stopRowOffset; ++curRowOffset) {
-        try {
-            return this._findCellAtRowOffset(search, curRowOffset);
-        } catch (e) {
+        let res = this._findCellAtRowOffset(search, curRowOffset);
+
+        if (res === null) {
             continue;
         }
+
+        return res;
     }
 
-    throw new Error('Search term was not found');
+    return null;
 }
 
 /** @public */
@@ -526,7 +528,7 @@ Excel.prototype._findCellAtRowOffset = function (
         return new Cell(term, columnName, curColumnIndex, rowOffset, rowIndex);
     }
 
-    throw new Error('Search term was not found on row offset ' + rowOffset + ', row index ' + rowIndex);
+    return null;
 }
 
 /** 
