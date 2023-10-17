@@ -16,8 +16,10 @@ mappingHelper.getRowAtRowOffset(rowOffset: ?number, excludeBlankCells: ?boolean)
 But main reason I created this mappingHelper is this method:
 
 ```javascript
-mappingHelper.findCell(search: string | RegExp, startRowOffset: ?number, stopRowOffset: ?number): Cell;
+mappingHelper.findCell(search: string | RegExp, startRowOffset: ?number, stopRowOffset: ?number): Cell | null;
 ```
+
+null is being returned in mappingHelper.findCell if nothing was found.
 
 It handles multiple scenarios to give you pointers on where your data is.
 
