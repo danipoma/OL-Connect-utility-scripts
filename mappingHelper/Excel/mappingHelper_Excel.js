@@ -511,7 +511,7 @@ Excel.prototype._findCellAtRowOffset = function (
 
     // Check row boundary
     if (!this._isRowOffsetWithinBounds(rowOffset)) {
-        throw Error('Row offset is out of bounds');
+        throw new Error('Row offset is out of bounds');
     }
 
     let rowIndex = this._rowOffsetToIndex(rowOffset);
