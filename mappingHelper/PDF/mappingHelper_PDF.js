@@ -445,26 +445,6 @@ PDF.findTextPosition = function (
         }
 
         for (let stepBy = INITIAL_STEP_BY; true;) {
-            leftPosition += stepBy;
-            let lookupContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
-
-            if (lookupContent.match(search) === null && stepBy <= 1) {
-                leftPosition -= stepBy;
-                break;
-            }
-
-            if (lookupContent.match(search) === null) {
-                leftPosition -= stepBy;
-                stepBy /= 10;
-                continue;
-            }
-
-            if (lookupContent.match(search) !== null) {
-                continue;
-            }
-        }
-
-        for (let stepBy = INITIAL_STEP_BY; true;) {
             rightPosition -= stepBy;
             let lookupContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
 
@@ -475,6 +455,26 @@ PDF.findTextPosition = function (
 
             if (lookupContent.match(search) === null) {
                 rightPosition += stepBy;
+                stepBy /= 10;
+                continue;
+            }
+
+            if (lookupContent.match(search) !== null) {
+                continue;
+            }
+        }
+
+        for (let stepBy = INITIAL_STEP_BY; true;) {
+            leftPosition += stepBy;
+            let lookupContent = data.extract(leftPosition, rightPosition, offset, height, "<br />");
+
+            if (lookupContent.match(search) === null && stepBy <= 1) {
+                leftPosition -= stepBy;
+                break;
+            }
+
+            if (lookupContent.match(search) === null) {
+                leftPosition -= stepBy;
                 stepBy /= 10;
                 continue;
             }
